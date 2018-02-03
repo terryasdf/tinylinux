@@ -1,7 +1,7 @@
 
 The TinyLinux project is aiming to build a very, very small Linux system (aiming at < 10MiB) for all sorts of usage, including things like embedded system development, distro building, studying the internals of a Linux system, etc.
 
-Currently, the TinyLinux system has the following components inside:
+Currently, the TinyLinux system has the following components:
   - Busybox 2.8 (Statically linked with musl-libc with sanitized kernel headers)
   - Linux Mainline Kernel 4.14 (bzImage, custom edition of "make tinyconfig")
   - Syslinux / Grub as bootloaders
