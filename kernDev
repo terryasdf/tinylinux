@@ -1,0 +1,129 @@
+# Kernel configuration notes
+
+64-bit kernel: build the kernel for it to run on a 64 bit architecture
+
+# General Setup
+Kernel compression mode:
+	The kernel image is a sort of "self extracting" executable file. It is
+	initially compressed, then it gets decompressed and put into the RAM.
+	XZ is the default compression algorithm used that offers decent
+	compression ratio & time
+
+Default hostname:
+	hostname that the system will use when no userspace action (e.g. setting
+	up /etc/hostname) has been done to set another hostname. 
+
+Support for paging of anonymous memory (swap):
+	This option enables the use of swap space. swap space is used when your
+	physcial RAM becomes full, so the kernel tries to put inactive pages in
+	RAM into the swap space (somewhere on the disk) in order to free up some
+	memory. A lot of swapping activity is generally not a good sign. It can
+	indicate issues such as:
+		- More physical RAM is needed
+		- Some application is eating up huge amounts of RAM
+		  etc.
+
+System V IPC:
+	inter process communication. Allows running processes to communicate with
+	each other. 
+
+POSIX Message Queues:
+	The POSIX variant of the IPC system. If you want to compile code originally
+	written for Solaries, then enable this. This is usually not needed.
+
+Kernel .config support:
+	Stores the .config file used to build this kernel into the kernel image.
+	This is useful for the purpose of learning the kernel and debugging
+	because you can check the config on-the-fly
+
+	Enable Access to .config through /proc/config.gz
+		Allows us to extract the config that built the kernel from a
+		running system.
+
+Control Group Support:
+	CGroups are a feature of the kernel that allows you to group processes
+	together and manage the them thru various ways such as limiting the
+	resources they can access. 
+
+	Select: memory, swap, swap controller enabled by default, IO controller,
+	CPU controller, PID, RDMA, Freezer, Device, Simple CPU accounting.
+
+Namespaces support:
+	Feature that allows partitioning the resources so one set of processes
+	accesses one set of resources, while another set of processes accesses
+	a different set of resources. Used to isolate processes
+
+Automatic process group scheduling:
+	Optimizes the scheduler for grouping common desktop workload/processes.
+	Separates aggressive CPU burners (e.g. compiling the linux kernel) from
+	desktop applicaitons. 
+
+Initial RAM filesystem and RAM disk:
+	The initramfs (the newer technology) or the initrd (initial ram disk, 
+	slightly older but still widely used) is a virtual RAM file system that
+	is loaded by the bootloader into the memory when the system starts up.
+	The kernel mounts this ramfs as the root file system in order to do some
+	start up jobs (load modules for some specific hardware, etc.). Commonly,
+	the kernel loads the driver module for a hard drive, then mount the
+	hard drive as the real root of the system and discard the initramfs.
+	Some embedded systems stays in the initramfs since it does not always
+	have a hard disk
+		select these two options in the initramfs submenu:
+		- compressed using gzip
+		- compressed using XZ
+
+Use full shmem filesystem:
+	Functions as a shared memory implementation that helps IPC
+
+Enable AIO support:
+	POSIX asynchonous I/O, may be used by some high performance threaded apps
+
+Enable PCI quirk workarounds:
+	A PCI device with attributes that's noncompliant with the expected
+	operation is called a "quirk".
+	Enable this option so the kernel can deal with such situations.
+
+Enable membarrier() syscall:
+	this syscall reduces the overhead of the memory barrier instruction used
+	to order memory access on a multi-core system.
+
+Embedded system:
+	Enable this option to show expert config options in the config menu
+
+Stack Protector buffer overflow detection:
+	Set the value of this option to "Regular".
+	This protects the system from stack buffer overflow attacks
+
+Use a virtually-mapped stack:
+	Allows the kernel to detect buffer overflows immediatly
+
+# Enable loadable module support
+	Enable this option to use loadable modules.
+These are pieces of code that you can "insert" into a running kernel in order
+to gain some additional functionality that is not directly compiled into the
+kernel. (e.g. a device driver, etc.)
+	Enable the "module unloading" option in the submenu in order to gain the
+	ability to unload modules in a running kernel.
+
+# Enable the block layer
+	Enable this option or else you can't mount disks/file systems etc.
+	Block layer SG support v4:
+		this option enables the support for generic SCSI devices
+	Block device command line partition parser:
+		a useful option to enable for embedded system.
+	Enable these options in the menu:
+		* Enable support for block device writeback throttling
+		* Single queue writeback throttling
+		* Multiqueue writeback throttling
+	Enable these options in the "Partition Types --->" menu:
+		* Advanced partition selection
+		* Macintosh partition map
+		* PC BIOS
+		* BSD disklable
+		* Windows Logical Disk Manager
+		* EFI GUID support
+
+# CONFIG_UEVENT_HELPER
+under "Device Drivers ---> Generic Driver Options"
+enable this to get access to /proc/sys/kernel/hotplug
+if this is not enabled /sbin/mdev will not run properly
