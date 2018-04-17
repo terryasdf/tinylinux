@@ -1,0 +1,102 @@
+################################
+### General Linux Knowledge ####
+################################
+
+# Written by Richard Hu
+
+
+Linux Boot Process Overview
+===========================
+
+1. hardware powers on
+
+2. BIOS (basic input-output system) gets loaded into RAM from the on-board 
+   flash storage (located somewhere on the motherboard of the computer)
+
+3. BIOS performs hardware integrity checks & looks for the first bootable
+   device it finds (CD-ROM, USB, hard drive, etc.)
+
+4. BIOS loads the primary stage bootloader on the first bootable device.
+   In case of a hard drive, the primary stage bootloader is usually located
+   in the Master Boot Record, the 1st sector of the disk. The MBR is only
+   512 bytes in size (446 bytes for the primary bootloaer, 64 bytes for
+   storing the partition table). The job of this bootloader is to load the
+   second stage bootloader. 
+
+5. The primary bootloader loads the secondary bootloader, which is usually
+   GRUB or Syslinux. These bootloaders provide you with the "boot menu"
+   screen that you usually see when your computer turns on. A third bootloader
+   are sometimes loaded (chain loading) but this setup is typically not
+   needed unless there's a special reason to do so. 
+
+6. GRUB then loads the kernel image (vmlinuz/bzImage) into memory and then
+   passes the control over to the running kernel. 
+
+7. The kernel mounts the root file system, which could be an actual hard
+   disk or it can be a virtual RAM file system or a RAM disk. The kernel
+   then executes a userspace program to do initialization tasks, which is
+   usually /sbin/init, but there is no restriction over what can the kernel
+   execute (can be any custom executable binaries / scripts)
+
+8. /sbin/init is the first userspace process that the kernel launches and its
+   PID is always 1. This process cannot exit during the runtime of the system
+   or else you will end up with a kernel panic (when the kernel runs into an
+   unrecoverable error and has to halt to prevent further damage).
+
+   All other userspace processes are descendants of init, and all orphaned 
+   processes (processes that has their parents unexpectedly killed by the
+   uncatchable SIGKILL signal) are automatically adopted by init. This is 
+   why init is typically called "the great grandmother of all processes"
+
+   Commonly, init reads /etc/inittab in order to carry out tasks the user
+   wanted it to do, such as running other initialization scripts, starting
+   daemon processes, etc. 
+
+9. After all this, init executes /sbin/getty to open & setup a few ttys
+   (tty: TeleTYper, the old text consoles used back in the dawn of UNIX.
+   You can think of this as the terminal). Then /sbin/getty invokes login
+   to prompt the user for a user name and a password on the opened ttys.
+
+10. By now, the system has properly booted and it's ready to be used.
+
+
+Compartments in a Linux system
+==============================
+
+1. The hardware, which includes:
+Core devices:
+	* CPU
+	* RAM
+	* Bus (normally PCI)
+Peripheral devices:	
+	* USB controller connected to the bus
+	* IDE/SCSI hard drive controller attached to the bus
+	 etc. 
+
+2. The bootloader:
+	The bootloader is a small program that locates & starts the linux
+	kernel. Users usually "see" the bootloader as a splash screen when
+	their PC starts up
+
+3. The Linux Kernel:
+	The kernel is actually what's called "Linux". The job of the kernel
+	is to control the hardware the system is running on and allocate
+	resources (e.g. RAM, disk space, network access, etc.) to userspace
+	programs upon request. It acts as a "relay" or "interface" between
+	the hardware and all the userspace programs
+
+4. Userspace programs:
+	The kernel itself has no external interface. The userspace is
+	actually the component that provides the interface (either text
+	or graphical) to the uesr so he/she can interact with the comp.
+	Userspace programs can include:
+	- the shell (aka. the command prompt)
+	- system utilities (ls, mkdir, cat, vi, touch, dd, etc.)
+	- X window system (the program that provides a graphical UI)
+	- Desktop environment
+	- Web browser
+	- Word processor
+	- etc.
+
+	
+	
