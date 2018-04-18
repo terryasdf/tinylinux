@@ -1,4 +1,5 @@
 #include <stdio.h>
+
 #include <string.h>
 #include <stdlib.h>
 
@@ -38,7 +39,7 @@ int main(int argc, char *argv[])
 	{
 		printf("%s\n", helpmsg);
 		return 0;
-
+	}
 
 	FILE *cfg = fopen("test.cfg", "r");	// read the config file
 	if(cfg == NULL)
